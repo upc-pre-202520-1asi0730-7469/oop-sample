@@ -1,2 +1,13 @@
 @startuml
+package "ACME.OOP.Shared" {
+    class "Money" as Money {
+        +Amount: decimal { readonly}
+        +Currency: string { readonly}
+    }
+}
+
+note right of Money
+    Value Object
+    Supports ISO Currency
+end note
 @enduml
