@@ -1,13 +1,80 @@
 @startuml
+skinparam monochrome true
+
 package "ACME.OOP.Shared" {
     class "Money" as Money {
         +Amount: decimal { readonly}
         +Currency: string { readonly}
     }
+    
+    class "Address" as Address {
+        +Street: string { readonly}
+        +Number: string { readonly}
+        +City: string { readonly}
+        +StateOrRegion: string { readonly}
+        +PostalCode: string { readonly}
+        +Country: string { readonly}
+    }
+}
+
+package "ACME.OOP.SCM" {
+    class "SupplierId" as SupplierId {
+        +Id: string { readonly}
+    }
+    class "Supplier" as Supplier {
+        +Id: SupplierId { readonly}
+        +Name: string { readonly}
+        +Address: Address { readonly}
+    }
+    
+    Supplier "1" -- "1" SupplierId : has
+    Supplier "1" -- "1" Address : located at
+}
+
+package "ACME.OOP.Procurement" {
+    class "PurchaseOrderItem" as PurchaseOrderItem {
+        +ProductId: string { readonly}
+        +Quantity: int { readonly}
+        +UnitPrice: Money { readonly}
+    } 
+    class "PurchaseOrder" as PurchaseOrder {
+        +OrderNumber: string { readonly}
+        +SupplierId: SupplierId { readonly}
+        +OrderDate: DateTime { readonly}
+        +Currency: string { readonly}
+        +AddItem(productId: ProductId, quantity: int, unitPriceAmount: decimal): PurchaseOrder}
+        +Items: IReadOnlyList<PurchaseOrderItem> { readonly}
+        -_items: List<PurchaseOrderItem> {readonly}
+    }
+    PurchaseOrder "1" -- "1" SupplierId : to
+    PurchaseOrder "1" o-- "*" PurchaseOrderItem : contains
+    PurchaseOrderItem "1" -- "1" Money : priced in
+    PurchaseOrderItem "1" -- "1" ProductId : for
 }
 
 note right of Money
     Value Object
     Supports ISO Currency
 end note
+note right of Address
+    Value Object
+    Supports International Addresses
+end note
+note right of SupplierId
+    Value Object
+    Wraps a string identifier
+end note
+note right of Supplier
+    Aggregate Root
+    Represents a supplier in the SCM bounded context
+end note
+note right of PurchaseOrderItem
+    Value Object
+    Represents an item in a purchase order
+end note
+note right of PurchaseOrder
+    Aggregate Root
+    Represents a purchase order in the Procurement bounded context
+end note
+
 @enduml
